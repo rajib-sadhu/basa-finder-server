@@ -1,4 +1,3 @@
-// listing.service.ts
 
 import { IListing } from './listing.interface';
 import Listing from './listing.model';
