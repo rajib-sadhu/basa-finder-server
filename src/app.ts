@@ -4,6 +4,7 @@ import express, { Application, Request, Response } from 'express';
 import { globalErrorHandler } from './app/middleeatres/globalErrorHandler';
 import userRouter from './app/modules/user/user.router';
 import listingRouter from './app/modules/listing/listing.router';
+import requestRouter from './app/modules/request/request.router';
 
 
 const app: Application = express();
@@ -27,12 +28,13 @@ app.use(express.json());
 const getAController = (req: Request, res: Response) => {
     res.send('Hello World!')
 };
-
 app.get('/', getAController)
 app.use(globalErrorHandler)
+
 // routes
-app.use('api/user', userRouter)
+app.use('api/users', userRouter);
 app.use('api/listings', listingRouter);
+app.use('api/requests', requestRouter);
 
 app.use("*", (req: Request, res: Response) =>{
   res.status(404).json({
