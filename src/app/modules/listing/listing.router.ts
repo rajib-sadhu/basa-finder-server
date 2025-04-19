@@ -6,14 +6,14 @@ import validateRequest from "../../middleeatres/validateRequest";
 const listingRouter = Router();
 
 listingRouter.post(
-  "/listings",
-  validateRequest(ListingValidation.listingValidationSchema),
+  "/",
+  // validateRequest(ListingValidation.listingValidationSchema),
   listingController.createListing
 );
 
-listingRouter.get("/listings", listingController.getListings);
-listingRouter.get("/listings/:listingId", listingController.getSingleListing);
-listingRouter.put("/listings/:listingId", listingController.updateListing);
-listingRouter.delete("/listings/:listingId", listingController.deleteListing);
+listingRouter.get("/", listingController.getListings);
+listingRouter.get("/list/:listingId", listingController.getSingleListing);
+listingRouter.put("/update/:listingId", listingController.updateListing);
+listingRouter.delete("/delete/:listingId", listingController.deleteListing);
 
 export default listingRouter;

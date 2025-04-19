@@ -1,7 +1,7 @@
 // listing.model.ts
 
-import { Schema, model } from 'mongoose';
-import { IListing } from './listing.interface';
+import { Schema, model } from "mongoose";
+import { IListing } from "./listing.interface";
 
 const listingSchema = new Schema<IListing>(
   {
@@ -27,17 +27,20 @@ const listingSchema = new Schema<IListing>(
       required: true,
       min: 1,
     },
+    amenities: {
+      type: [String],
+    },
     images: {
       type: [String],
       required: true,
       validate: {
         validator: (val: string[]) => val.length > 0,
-        message: 'At least one image is required',
+        message: "At least one image is required",
       },
     },
     landlordId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
@@ -46,5 +49,5 @@ const listingSchema = new Schema<IListing>(
   }
 );
 
-const Listing = model<IListing>('Listing', listingSchema);
+const Listing = model<IListing>("Listing", listingSchema);
 export default Listing;
