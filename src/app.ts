@@ -33,9 +33,9 @@ app.get('/', getAController)
 
 // routes
 app.use('/api/auth', authRouter);
-app.use('api/users', userRouter);
-app.use('api/listings', listingRouter);
-app.use('api/requests', requestRouter);
+app.use('/api/users', userRouter);
+app.use('/api/listings', listingRouter);
+app.use('/api/requests', requestRouter);
 app.use(globalErrorHandler)
 
 app.use("*", (req: Request, res: Response) =>{
