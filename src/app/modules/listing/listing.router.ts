@@ -12,6 +12,7 @@ listingRouter.post(
 );
 
 listingRouter.get("/", listingController.getListings);
+listingRouter.get("/my-listings/:landlordId", listingController.myListings);
 listingRouter.get("/list/:listingId", listingController.getSingleListing);
 listingRouter.put("/update/:listingId", listingController.updateListing);
 listingRouter.delete("/delete/:listingId", listingController.deleteListing);

@@ -37,6 +37,7 @@ const login = async (payload: { email: string; password: string }) => {
   const jwtPayload = {
     email: user.email,
     role: user.role,
+    _id: user._id,
   };
 
   const token = jwt.sign(jwtPayload, "secret", { expiresIn: "2d" });
