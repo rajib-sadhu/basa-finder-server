@@ -37,7 +37,7 @@ const getSingleListing = catchAsync(async (req, res) => {
 });
 
 const myListings = catchAsync(async (req, res) => {
-  const landlordId = req.params.landlordId;
+  const landlordId = req.user?._id;
   const result = await listingService.myListings(landlordId);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
