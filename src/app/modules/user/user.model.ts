@@ -39,9 +39,10 @@ const userSchema = new Schema<IUser>({
     required: true,
     select: false,
   },
-  isBlocked: {
+  isActive: {
     type: Boolean,
-    default: false,
+    default: true,
+    required: true,
   },
 });
 
