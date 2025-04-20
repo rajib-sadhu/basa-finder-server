@@ -33,10 +33,9 @@ const getSingleListing = async (id: string): Promise<IListing | null> => {
   return result;
 };
 
-const myListings = async (id: string): Promise<IListing | null> => {
-
+const myListings = async (id: string): Promise<IListing[]> => {
   const result = await Listing.find({ landlordId: id });
-  return result;
+  return result as IListing[];
 };
 
 // Update a listing
