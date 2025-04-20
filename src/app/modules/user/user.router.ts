@@ -3,6 +3,7 @@ import { userController } from "./user.controller";
 import { UserValidation } from "./userValidation";
 import { USER_ROLE } from "./user.constants";
 import validateRequest from "./../../middleeatres/validateRequest";
+import auth from "../../middleeatres/auth";
 
 const userRouter = Router();
 userRouter.post(
@@ -14,5 +15,6 @@ userRouter.get("/", userController.getUser);
 userRouter.get("/:userId", userController.getSingleUser);
 userRouter.put("/:userId", userController.updateUser);
 userRouter.delete("/:userId", userController.deleteUser);
+userRouter.patch("/activation/:userId", userController.activationUser);
 
 export default userRouter;
