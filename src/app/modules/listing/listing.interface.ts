@@ -7,8 +7,9 @@ export interface IListing {
   rent: number;
   bedrooms: number;
   images: string[];
-  landlordId: Types.ObjectId; // user ID reference
+  landlordId: Types.ObjectId; 
   createdAt?: Date;
   updatedAt?: Date;
   amenities?: string[];
+  availability: boolean;
 }

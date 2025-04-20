@@ -36,6 +36,16 @@ const getSingleListing = catchAsync(async (req, res) => {
   });
 });
 
+const myListings = catchAsync(async (req, res) => {
+  const landlordId = req.params.landlordId;
+  const result = await listingService.myListings(landlordId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    message: "My Listing retrieved successfully",
+    data: result,
+  });
+});
+
 // Update a Listing (Landlord only)
 const updateListing = catchAsync(async (req, res) => {
   const listingId = req.params.listingId;
@@ -65,4 +75,5 @@ export const listingController = {
   getSingleListing,
   updateListing,
   deleteListing,
+  myListings,
 };
