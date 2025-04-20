@@ -2,6 +2,7 @@
 
 import { Schema, model } from "mongoose";
 import { IListing } from "./listing.interface";
+import { boolean } from "zod";
 
 const listingSchema = new Schema<IListing>(
   {
@@ -42,6 +43,10 @@ const listingSchema = new Schema<IListing>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    availability: {
+      type: Boolean,
+      default: true,
     },
   },
   {
