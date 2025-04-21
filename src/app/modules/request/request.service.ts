@@ -1,8 +1,7 @@
-
-import Request from './request.model';
-import Listing from '../listing/listing.model';
-import { Types } from 'mongoose';
-import { IRequest } from './request.interface';
+import Request from "./request.model";
+import Listing from "../listing/listing.model";
+import { Types } from "mongoose";
+import { IRequest } from "./request.interface";
 
 // Create a new rental request (Tenant)
 const createRequest = async (requestData: IRequest): Promise<IRequest> => {
@@ -13,20 +12,52 @@ const createRequest = async (requestData: IRequest): Promise<IRequest> => {
 // Get all requests submitted by a tenant
 const getTenantRequests = async (tenantId: string): Promise<IRequest[]> => {
   const result = await Request.find({ tenantId: new Types.ObjectId(tenantId) })
-    .populate('listingId')
-    .populate('tenantId', 'name email');
+    .populate("listingId")
+    .populate("tenantId", "name email");
   return result;
 };
 
 // Get all requests for listings posted by a landlord
 const getLandlordRequests = async (landlordId: string): Promise<IRequest[]> => {
-  const listings = await Listing.find({ landlordId: new Types.ObjectId(landlordId) });
-  const listingIds = listings.map(listing => listing._id);
+  const requests = await Request.aggregate([
+    {
+      $match: {
+        landlordId: new Types.ObjectId(landlordId),
+      },
+    },
+    {
+      $lookup: {
+        from: "listings", // collection name in MongoDB (usually lowercase plural of model)
+        localField: "listingId",
+        foreignField: "_id",
+        as: "listingDetails",
+      },
+    },
+    {
+      $unwind: "$listingDetails",
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        status: 1,
+        message: 1,
+        tenantId: 1,
+        paymentStatus: 1,
+        landlordPhone: 1,
+        tenantPhone: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        listing: {
+          listingId: "$listingDetails._id",
+          title: "$listingDetails.title",
+          images: "$listingDetails.images",
+        },
+      },
+    },
+  ]);
 
-  const result = await Request.find({ listingId: { $in: listingIds } })
-    .populate('listingId')
-    .populate('tenantId', 'name email');
-  return result;
+  return requests;
 };
 
 // Update request status (approve/reject) and optionally add landlord phone number
@@ -34,15 +65,15 @@ const updateRequestStatus = async (
   requestId: string,
   updateData: Partial<IRequest>
 ): Promise<IRequest | null> => {
-  if (updateData.status === 'approved' && updateData.landlordPhone) {
-    updateData.paymentStatus = 'unpaid'; // Automatically set payment status when approved
+  if (updateData.status === "approved" && updateData.landlordPhone) {
+    updateData.paymentStatus = "unpaid"; // Automatically set payment status when approved
   }
 
   const result = await Request.findByIdAndUpdate(requestId, updateData, {
     new: true,
   })
-    .populate('listingId')
-    .populate('tenantId', 'name email');
+    .populate("listingId")
+    .populate("tenantId", "name email");
   return result;
 };
 
