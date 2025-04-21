@@ -7,7 +7,7 @@ const requestRouter = Router();
 
 // Tenant routes
 requestRouter.post(
-  '/tenants/requests',
+  '/request',
   validateRequest(RequestValidation.createRequestValidation), 
   requestController.createRequest
 );

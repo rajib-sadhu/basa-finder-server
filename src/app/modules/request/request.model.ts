@@ -13,6 +13,11 @@ const requestSchema = new Schema<IRequest>(
       ref: 'User',
       required: true,
     },
+    name: {
+      type: String,
+      required: true,
+    },
+
     status: {
       type: String,
       enum: ['pending', 'approved', 'rejected'],

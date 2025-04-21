@@ -2,7 +2,8 @@ import { Types } from "mongoose";
 
 export interface IRequest {
   listingId: Types.ObjectId;   // Reference to the rental listing
-  tenantId: Types.ObjectId;    
+  tenantId: Types.ObjectId; 
+  name: string;   
   status: 'pending' | 'approved' | 'rejected'; 
   message?: string;         
   paymentStatus?: 'unpaid' | 'paid'; 
