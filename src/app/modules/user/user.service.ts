@@ -13,7 +13,9 @@ const getUser = async () => {
   return result;
 };
 const getSingleUser = async (id: string) => {
+  console.log(id);
   const result = await User.findById(id);
+  console.log(result)
   return result;
 };
 
