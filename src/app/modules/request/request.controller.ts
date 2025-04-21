@@ -27,7 +27,7 @@ const getTenantRequests = catchAsync(async (req, res) => {
 
 // Landlord: Get all requests for listings posted by the landlord
 const getRequestsForLandlord = catchAsync(async (req, res) => {
-  const landlordId = req.body.landlordId || req.user?._id; 
+  const landlordId = req.body.landlordId || req.user?._id;
   const result = await requestService.getLandlordRequests(landlordId);  
   sendResponse(res, {
     statusCode: StatusCodes.OK,

@@ -1,13 +1,15 @@
 import { Types } from "mongoose";
 
 export interface IRequest {
-  listingId: Types.ObjectId;   // Reference to the rental listing
-  tenantId: Types.ObjectId; 
-  name: string;   
-  status: 'pending' | 'approved' | 'rejected'; 
-  message?: string;         
-  paymentStatus?: 'unpaid' | 'paid'; 
-  landlordPhone?: string;      // Provided only if approved
+  listingId: Types.ObjectId; // Reference to the rental listing
+  tenantId: Types.ObjectId;
+  landlordId: Types.ObjectId;
+  name: string;
+  status: "pending" | "approved" | "rejected";
+  message?: string;
+  paymentStatus?: "unpaid" | "paid";
+  landlordPhone?: string; // Provided only if approved
+  tenantPhone?: string; // Provided only if approved
   createdAt?: Date;
   updatedAt?: Date;
 }

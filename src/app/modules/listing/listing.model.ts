@@ -2,7 +2,7 @@
 
 import { Schema, model } from "mongoose";
 import { IListing } from "./listing.interface";
-import { boolean } from "zod";
+
 
 const listingSchema = new Schema<IListing>(
   {
