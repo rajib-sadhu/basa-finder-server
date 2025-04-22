@@ -16,5 +16,6 @@ userRouter.get("/:userId", userController.getSingleUser);
 userRouter.put("/:userId", userController.updateUser);
 userRouter.delete("/:userId", userController.deleteUser);
 userRouter.patch("/activation/:userId", userController.activationUser);
+userRouter.patch("/change-role/:userId", userController.changeUserRole);
 
 export default userRouter;
