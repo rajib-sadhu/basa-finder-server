@@ -15,7 +15,7 @@ const getUser = async () => {
 const getSingleUser = async (id: string) => {
   console.log(id);
   const result = await User.findById(id);
-  console.log(result)
+  console.log(result);
   return result;
 };
 
@@ -44,6 +44,19 @@ const activationUser = async (id: string) => {
 
   return result;
 };
+const changeUserRole = async (
+  id: string,
+  role: "admin" | "landlord" | "tenant"
+) => {
+  const validRoles = ["admin", "landlord", "tenant"];
+  if (!validRoles.includes(role)) {
+    throw new Error("Invalid role provided.");
+  }
+
+  const user = await User.findByIdAndUpdate(id, { role }, { new: true });
+  return user;
+};
+
 export const userService = {
   createAdmin,
   getUser,
@@ -51,4 +64,5 @@ export const userService = {
   updateUser,
   deleteUser,
   activationUser,
+  changeUserRole,
 };
