@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { IUser } from "./user.interface";
 import User from "./user.model";
 
@@ -13,17 +14,56 @@ const getUser = async () => {
   return result;
 };
 const getSingleUser = async (id: string) => {
-  console.log(id);
   const result = await User.findById(id);
-  console.log(result);
   return result;
 };
 
-const updateUser = async (id: string, data: IUser) => {
-  const result = await User.findByIdAndUpdate(id, data, {
+const updateUser = async (_id: string, data: IUser) => {
+
+  console.log({_id,data})
+
+  const result = await User.findByIdAndUpdate(_id, data, {
     new: true,
   });
   return result;
+};
+
+const updatePassword = async (
+  userId: string,
+  payload: { currentPassword: string; newPassword: string }
+) => {
+  const user = await User.findById(userId).select("+password");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isPasswordMatched = await bcrypt.compare(
+    payload.currentPassword,
+    user.password
+  );
+
+  if (!isPasswordMatched) {
+    throw new Error("Current password is incorrect");
+  }
+
+  if (payload.currentPassword === payload.newPassword) {
+    throw new Error("New password cannot be same as current password");
+  }
+
+  const hashedNewPassword = await bcrypt.hash(payload.newPassword, 10);
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { password: hashedNewPassword },
+    { new: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    throw new Error("Failed to update password");
+  }
+
+  return updatedUser;
 };
 
 const deleteUser = async (id: string) => {
@@ -65,4 +105,5 @@ export const userService = {
   deleteUser,
   activationUser,
   changeUserRole,
+  updatePassword,
 };

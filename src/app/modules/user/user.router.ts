@@ -12,10 +12,11 @@ userRouter.post(
   userController.createAdmin
 );
 userRouter.get("/", userController.getUser);
-userRouter.get("/:userId", userController.getSingleUser);
-userRouter.put("/:userId", userController.updateUser);
+userRouter.get("/single", auth(USER_ROLE.tenant), userController.getSingleUser);
+userRouter.put("/update/:userId", userController.updateUser);
 userRouter.delete("/:userId", userController.deleteUser);
 userRouter.patch("/activation/:userId", userController.activationUser);
 userRouter.patch("/change-role/:userId", userController.changeUserRole);
+userRouter.patch("/update-password/:userId", userController.updatePassword);
 
 export default userRouter;
