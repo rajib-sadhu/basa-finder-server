@@ -10,10 +10,21 @@ const requestRouter = Router();
 // Tenant routes
 requestRouter.post(
   "/request",
-  validateRequest(RequestValidation.createRequestValidation),
+  auth(USER_ROLE.tenant),
+  // validateRequest(RequestValidation.createRequestValidation),
   requestController.createRequest
 );
 
+requestRouter.post(
+  "/create-payment",
+  auth(USER_ROLE.tenant),
+  requestController.createPayment
+);
+requestRouter.get(
+  "/verify",
+  auth(USER_ROLE.tenant),
+  requestController.verifyPayment
+);
 requestRouter.get(
   "/tenants/requests",
   auth(USER_ROLE.tenant),

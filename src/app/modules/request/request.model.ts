@@ -1,8 +1,7 @@
 import { Schema, model } from "mongoose";
 import { IRequest } from "./request.interface";
 
-const requestSchema = new Schema<IRequest>(
-  {
+const requestSchema = new Schema<IRequest>({
     listingId: {
       type: Schema.Types.ObjectId,
       ref: "Listing",
@@ -41,6 +40,15 @@ const requestSchema = new Schema<IRequest>(
     },
     tenantPhone: {
       type: String,
+    },
+    transaction: {
+      id: String,
+      transactionStatus: String,
+      bank_status: String,
+      sp_code: String,
+      sp_message: String,
+      method: String,
+      date_time: String,
     },
   },
   {

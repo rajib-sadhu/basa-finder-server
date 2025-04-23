@@ -2,18 +2,55 @@ import { StatusCodes } from 'http-status-codes';
 import { requestService } from './request.service';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import { Request, Response } from 'express';
 
 // Tenant: Create a rental request
-const createRequest = catchAsync(async (req, res) => {
-  const requestData = req.body;
-  const result = await requestService.createRequest(requestData);
+// const createRequest = catchAsync(async (req, res) => {
+//   const requestData = req.body;
+//   const result = await requestService.createRequest(requestData);
+//   sendResponse(res, {
+//     statusCode: StatusCodes.CREATED,
+//     message: 'Rental request submitted successfully',
+//     data: result,
+//   });
+// });
+const createRequest = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  const payload = req.body;
+  // console.log(payload);
+  const result = await requestService.createRequest(user, payload);
+
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
-    message: 'Rental request submitted successfully',
+    message: "Request done successfully",
     data: result,
   });
 });
 
+const createPayment = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  const {requestId} = req.body;
+  // console.log(requestId);
+  const result = await requestService.createPayment(user, requestId, req.ip!);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    message: "Payment processed successfully",
+    data: result,
+  });
+});
+
+const verifyPayment = catchAsync(async (req, res) => {
+  console.log(req?.query.order_id);
+  const request = await requestService.verifyPayment(req.query.order_id as string);
+  console.log(request);
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+
+    message: "Request verified successfully",
+    data: request,
+  });
+});
 // Tenant: Get all requests submitted by the logged-in tenant
 const getTenantRequests = catchAsync(async (req, res) => {
   const tenantId = req.body.landlordId || req.user?._id; 
@@ -50,7 +87,9 @@ const respondToRequest = catchAsync(async (req, res) => {
 
 export const requestController = {
   createRequest,
+  createPayment,
   getTenantRequests,
   getRequestsForLandlord,
   respondToRequest,
+  verifyPayment
 };
