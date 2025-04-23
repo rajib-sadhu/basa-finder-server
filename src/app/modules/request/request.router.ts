@@ -14,7 +14,11 @@ requestRouter.post(
   requestController.createRequest
 );
 
-requestRouter.get("/tenants/requests", requestController.getTenantRequests);
+requestRouter.get(
+  "/tenants/requests",
+  auth(USER_ROLE.tenant),
+  requestController.getTenantRequests
+);
 
 // Landlord routes
 requestRouter.get(
