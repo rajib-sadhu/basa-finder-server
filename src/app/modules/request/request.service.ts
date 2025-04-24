@@ -1,14 +1,133 @@
 import Request from "./request.model";
 import Listing from "../listing/listing.model";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { IRequest } from "./request.interface";
+import { IUser } from "../user/user.interface";
+import { requestUtils } from "./request.utils";
 
 // Create a new rental request (Tenant)
-const createRequest = async (requestData: IRequest): Promise<IRequest> => {
-  const result = await Request.create(requestData);
-  return result;
-};
+// const createRequest = async (requestData: IRequest): Promise<IRequest> => {
+//   const result = await Request.create(requestData);
+//   return result;
+// };
+const createRequest = async (
+  user: IUser,
+  payload: { listingId: string; message: string},
+) => {
+  console.log(user);
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const { listingId, message} = payload
 
+  try {
+    const requiredLinging = await Listing.findById(listingId);
+    if (!requiredLinging) {
+      throw new Error("Listing not found");
+    }
+    // const totalPrice = 1000;
+
+    let order = await Request.create({
+        listingId: listingId,
+        tenantId: user?._id,
+        landlordId: requiredLinging?.landlordId,
+        status: "pending",
+        message: message,
+        name: user?.name,
+        email: user?.email,
+        landlordPhone: 'landlord?.phoneNumber',
+        tenantPhone: user?.phoneNumber,
+      // totalPrice,
+    });
+    // const updateLisnting = await Listing.findByIdAndUpdate(
+    //   {
+    //     $inc: { availability: false },
+    //   },
+    //   { new: true, session }
+    // );
+
+    // if (!updateLisnting) {
+    //   throw new Error("Failed to update product");
+    // }
+
+    return order
+
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw error;
+  }
+};
+const createPayment = async (
+  user: IUser,
+  requestId: string,
+  client_ip: string
+) => {
+  try {
+    let request = await Request.findById(requestId)
+    // console.log(request);
+    // payment integration
+    const shurjopayPayload = {
+      amount: 1000,
+      order_id: requestId,
+      currency: "BDT",
+      customer_name: user.name,
+      customer_address: "N/A",
+      customer_email: user.email,
+      customer_phone: "N/A",
+      customer_city: "N/A",
+      client_ip,
+    };
+
+    const payment = await requestUtils.makePaymentAsync(shurjopayPayload);
+
+    if (payment?.transactionStatus) {
+      if(!request){
+        throw new Error('request not found')
+      }
+      request = await request.updateOne(
+        {
+          transaction: {
+            id: payment.sp_order_id,
+            transactionStatus: payment.transactionStatus,
+          },
+        },
+      );
+    }
+    return payment.checkout_url;
+  } catch (error) {
+    throw error;
+  }
+};
+const verifyPayment = async (order_id: string) => {
+  console.log(order_id);
+  const verifiedPayment = await requestUtils.verifyPaymentAsync(order_id);
+  console.log(verifyPayment.length);
+  if (verifiedPayment.length) {
+    await Request.findOneAndUpdate(
+      {
+        "transaction.id": order_id,
+      },
+      {
+        "transaction.bank_status": verifiedPayment[0].bank_status,
+        "transaction.sp_code": verifiedPayment[0].sp_code,
+        "transaction.sp_message": verifiedPayment[0].sp_message,
+        "transaction.transactionStatus": verifiedPayment[0].transaction_status,
+        "transaction.method": verifiedPayment[0].method,
+        "transaction.date_time": verifiedPayment[0].date_time,
+        paymentStatus:
+          verifiedPayment[0].bank_status == "Success"
+            ? "Paid"
+            : verifiedPayment[0].bank_status == "Failed"
+            ? "Pending"
+            : verifiedPayment[0].bank_status == "Cancel"
+            ? "Cancelled"
+            : "",
+      }
+    );
+  }
+
+  return verifiedPayment;
+};
 // Get all requests submitted by a tenant
 const getTenantRequests = async (tenantId: string): Promise<IRequest[]> => {
   const result = await Request.find({ tenantId: new Types.ObjectId(tenantId) })
@@ -79,7 +198,9 @@ const updateRequestStatus = async (
 
 export const requestService = {
   createRequest,
+  createPayment,
   getTenantRequests,
   getLandlordRequests,
   updateRequestStatus,
+  verifyPayment
 };
