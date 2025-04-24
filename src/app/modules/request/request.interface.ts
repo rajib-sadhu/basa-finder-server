@@ -5,6 +5,7 @@ export interface IRequest {
   tenantId: Types.ObjectId;
   landlordId: Types.ObjectId;
   name: string;
+  rent: number;
   status: "pending" | "approved" | "rejected";
   message?: string;
   paymentStatus?: "unpaid" | "paid";

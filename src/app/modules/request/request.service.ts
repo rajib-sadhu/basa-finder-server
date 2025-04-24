@@ -4,6 +4,7 @@ import mongoose, { Types } from "mongoose";
 import { IRequest } from "./request.interface";
 import { IUser } from "../user/user.interface";
 import { requestUtils } from "./request.utils";
+import User from "../user/user.model";
 
 // Create a new rental request (Tenant)
 // const createRequest = async (requestData: IRequest): Promise<IRequest> => {
@@ -12,30 +13,34 @@ import { requestUtils } from "./request.utils";
 // };
 const createRequest = async (
   user: IUser,
-  payload: { listingId: string; message: string},
+  payload: { listingId: string; message: string }
 ) => {
   console.log(user);
   const session = await mongoose.startSession();
   session.startTransaction();
-  const { listingId, message} = payload
+  const { listingId, message } = payload;
 
   try {
-    const requiredLinging = await Listing.findById(listingId);
-    if (!requiredLinging) {
+    const requiredListing = await Listing.findById(listingId);
+    const requiredLandlord = await User.findById(requiredListing?.landlordId);
+    if (!requiredListing) {
       throw new Error("Listing not found");
     }
-    // const totalPrice = 1000;
+    if (!requiredLandlord) {
+      throw new Error("Landlord not found");
+    }
 
     let order = await Request.create({
-        listingId: listingId,
-        tenantId: user?._id,
-        landlordId: requiredLinging?.landlordId,
-        status: "pending",
-        message: message,
-        name: user?.name,
-        email: user?.email,
-        landlordPhone: 'landlord?.phoneNumber',
-        tenantPhone: user?.phoneNumber,
+      listingId: listingId,
+      tenantId: user?._id,
+      landlordId: requiredListing?.landlordId,
+      rent: requiredListing?.rent,
+      status: "pending",
+      message: message,
+      name: user?.name,
+      email: user?.email,
+      landlordPhone: requiredLandlord?.phoneNumber,
+      tenantPhone: user?.phoneNumber,
       // totalPrice,
     });
     // const updateLisnting = await Listing.findByIdAndUpdate(
@@ -49,8 +54,7 @@ const createRequest = async (
     //   throw new Error("Failed to update product");
     // }
 
-    return order
-
+    return order;
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
@@ -63,11 +67,10 @@ const createPayment = async (
   client_ip: string
 ) => {
   try {
-    let request = await Request.findById(requestId)
-    // console.log(request);
-    // payment integration
+    let request = await Request.findById(requestId).populate("listingId");
+
     const shurjopayPayload = {
-      amount: 1000,
+      amount: request?.rent,
       order_id: requestId,
       currency: "BDT",
       customer_name: user.name,
@@ -81,17 +84,15 @@ const createPayment = async (
     const payment = await requestUtils.makePaymentAsync(shurjopayPayload);
 
     if (payment?.transactionStatus) {
-      if(!request){
-        throw new Error('request not found')
+      if (!request) {
+        throw new Error("request not found");
       }
-      request = await request.updateOne(
-        {
-          transaction: {
-            id: payment.sp_order_id,
-            transactionStatus: payment.transactionStatus,
-          },
+      request = await request.updateOne({
+        transaction: {
+          id: payment.sp_order_id,
+          transactionStatus: payment.transactionStatus,
         },
-      );
+      });
     }
     return payment.checkout_url;
   } catch (error) {
@@ -201,5 +202,5 @@ export const requestService = {
   getTenantRequests,
   getLandlordRequests,
   updateRequestStatus,
-  verifyPayment
+  verifyPayment,
 };

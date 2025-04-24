@@ -3,7 +3,7 @@ import { userController } from "./user.controller";
 import { UserValidation } from "./userValidation";
 import { USER_ROLE } from "./user.constants";
 import validateRequest from "./../../middleeatres/validateRequest";
-import auth from "../../middleeatres/auth";
+import verifyUser from "../../middleeatres/verifyUser";
 
 const userRouter = Router();
 userRouter.post(
@@ -12,7 +12,7 @@ userRouter.post(
   userController.createAdmin
 );
 userRouter.get("/", userController.getUser);
-userRouter.get("/single", auth(USER_ROLE.tenant), userController.getSingleUser);
+userRouter.get("/single", verifyUser(), userController.getSingleUser);
 userRouter.put("/update/:userId", userController.updateUser);
 userRouter.delete("/:userId", userController.deleteUser);
 userRouter.patch("/activation/:userId", userController.activationUser);

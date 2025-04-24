@@ -1,7 +1,9 @@
 import { Schema, model } from "mongoose";
 import { IRequest } from "./request.interface";
+import { number } from "zod";
 
-const requestSchema = new Schema<IRequest>({
+const requestSchema = new Schema<IRequest>(
+  {
     listingId: {
       type: Schema.Types.ObjectId,
       ref: "Listing",
@@ -21,7 +23,10 @@ const requestSchema = new Schema<IRequest>({
       type: String,
       required: true,
     },
-
+    rent: {
+      type: Number,
+      required: true,
+    },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
