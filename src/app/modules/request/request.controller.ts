@@ -1,19 +1,18 @@
-import { StatusCodes } from 'http-status-codes';
-import { requestService } from './request.service';
-import catchAsync from '../../utils/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import { Request, Response } from 'express';
+import { StatusCodes } from "http-status-codes";
+import { requestService } from "./request.service";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import { Request, Response } from "express";
 
-// Tenant: Create a rental request
-// const createRequest = catchAsync(async (req, res) => {
-//   const requestData = req.body;
-//   const result = await requestService.createRequest(requestData);
-//   sendResponse(res, {
-//     statusCode: StatusCodes.CREATED,
-//     message: 'Rental request submitted successfully',
-//     data: result,
-//   });
-// });
+const getAllRentals = catchAsync(async (req: Request, res: Response) => {
+  const result = await requestService.getAllRequests();
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    message: "All request fetch successfully",
+    data: result,
+  });
+});
 const createRequest = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
   const payload = req.body;
@@ -29,7 +28,7 @@ const createRequest = catchAsync(async (req: Request, res: Response) => {
 
 const createPayment = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
-  const {requestId} = req.body;
+  const { requestId } = req.body;
   // console.log(requestId);
   const result = await requestService.createPayment(user, requestId, req.ip!);
 
@@ -42,7 +41,9 @@ const createPayment = catchAsync(async (req: Request, res: Response) => {
 
 const verifyPayment = catchAsync(async (req, res) => {
   console.log(req?.query.order_id);
-  const request = await requestService.verifyPayment(req.query.order_id as string);
+  const request = await requestService.verifyPayment(
+    req.query.order_id as string
+  );
   console.log(request);
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
@@ -53,11 +54,11 @@ const verifyPayment = catchAsync(async (req, res) => {
 });
 // Tenant: Get all requests submitted by the logged-in tenant
 const getTenantRequests = catchAsync(async (req, res) => {
-  const tenantId = req.body.landlordId || req.user?._id; 
-  const result = await requestService.getTenantRequests(tenantId); 
+  const tenantId = req.body.landlordId || req.user?._id;
+  const result = await requestService.getTenantRequests(tenantId);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
-    message: 'Rental requests retrieved successfully',
+    message: "Rental requests retrieved successfully",
     data: result,
   });
 });
@@ -65,10 +66,10 @@ const getTenantRequests = catchAsync(async (req, res) => {
 // Landlord: Get all requests for listings posted by the landlord
 const getRequestsForLandlord = catchAsync(async (req, res) => {
   const landlordId = req.body.landlordId || req.user?._id;
-  const result = await requestService.getLandlordRequests(landlordId);  
+  const result = await requestService.getLandlordRequests(landlordId);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
-    message: 'Rental requests for your listings retrieved successfully',
+    message: "Rental requests for your listings retrieved successfully",
     data: result,
   });
 });
@@ -77,7 +78,10 @@ const getRequestsForLandlord = catchAsync(async (req, res) => {
 const respondToRequest = catchAsync(async (req, res) => {
   const requestId = req.params.requestId;
   const responsePayload = req.body; // { status: 'approve' | 'reject', phoneNumber?: string }
-  const result = await requestService.updateRequestStatus(requestId, responsePayload);  
+  const result = await requestService.updateRequestStatus(
+    requestId,
+    responsePayload
+  );
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     message: `Rental request ${responsePayload.status}ed successfully`,
@@ -91,5 +95,6 @@ export const requestController = {
   getTenantRequests,
   getRequestsForLandlord,
   respondToRequest,
-  verifyPayment
+  verifyPayment,
+  getAllRentals,
 };
