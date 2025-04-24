@@ -15,6 +15,10 @@ requestRouter.post(
   requestController.createRequest
 );
 
+requestRouter.get(
+  "/request/all",
+  requestController.getAllRentals
+);
 requestRouter.post(
   "/create-payment",
   auth(USER_ROLE.tenant),

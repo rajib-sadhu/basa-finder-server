@@ -5,12 +5,13 @@ import { IRequest } from "./request.interface";
 import { IUser } from "../user/user.interface";
 import { requestUtils } from "./request.utils";
 import User from "../user/user.model";
+import { EmailSender } from "../../utils/sendEmail";
 
 // Create a new rental request (Tenant)
-// const createRequest = async (requestData: IRequest): Promise<IRequest> => {
-//   const result = await Request.create(requestData);
-//   return result;
-// };
+const getAllRequests = async (): Promise<IRequest[]> => {
+  const result = await Request.find();
+  return result;
+};
 const createRequest = async (
   user: IUser,
   payload: { listingId: string; message: string }
@@ -53,7 +54,11 @@ const createRequest = async (
     // if (!updateLisnting) {
     //   throw new Error("Failed to update product");
     // }
-
+    EmailSender(
+      requiredLandlord.email,
+      "Rental Request",
+      `You have an request for your rental. Listing id:${listingId}. \n Visit the side now - https://basa-finder-psi.vercel.app/ \n \nFrom,\nSupport - BasaFinder`
+    );
     return order;
   } catch (error) {
     await session.abortTransaction();
@@ -179,20 +184,38 @@ const getLandlordRequests = async (landlordId: string): Promise<IRequest[]> => {
   return requests;
 };
 
+type IRequestWithPopulatedTenant = IRequest & {
+  tenantId: {
+    name: string;
+    email: string;
+  };
+  listingId: {
+    _id: string;
+  };
+};
 // Update request status (approve/reject) and optionally add landlord phone number
 const updateRequestStatus = async (
   requestId: string,
   updateData: Partial<IRequest>
-): Promise<IRequest | null> => {
+): Promise<IRequestWithPopulatedTenant | null> => {
   if (updateData.status === "approved" && updateData.landlordPhone) {
-    updateData.paymentStatus = "unpaid"; // Automatically set payment status when approved
+    updateData.paymentStatus = "unpaid";
   }
 
-  const result = await Request.findByIdAndUpdate(requestId, updateData, {
+  const result = (await Request.findByIdAndUpdate(requestId, updateData, {
     new: true,
   })
-    .populate("listingId")
-    .populate("tenantId", "name email");
+    .populate("listingId", "_id")
+    .populate("tenantId", "name email")) as IRequestWithPopulatedTenant | null;
+
+  if (result?.tenantId?.email && result?.listingId?._id) {
+    EmailSender(
+      result.tenantId.email,
+      `Rental ${updateData.status}`,
+      `Your Rental request is ${updateData.status}. Listing id:${result.listingId._id}. \n Visit the site now - https://basa-finder-psi.vercel.app/ \n \nFrom,\nSupport - BasaFinder`
+    );
+  }
+
   return result;
 };
 
@@ -203,4 +226,5 @@ export const requestService = {
   getLandlordRequests,
   updateRequestStatus,
   verifyPayment,
+  getAllRequests
 };
