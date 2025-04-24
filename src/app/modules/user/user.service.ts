@@ -19,9 +19,6 @@ const getSingleUser = async (id: string) => {
 };
 
 const updateUser = async (_id: string, data: IUser) => {
-
-  console.log({_id,data})
-
   const result = await User.findByIdAndUpdate(_id, data, {
     new: true,
   });

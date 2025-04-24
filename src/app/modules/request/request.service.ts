@@ -99,9 +99,8 @@ const createPayment = async (
   }
 };
 const verifyPayment = async (order_id: string) => {
-  console.log(order_id);
   const verifiedPayment = await requestUtils.verifyPaymentAsync(order_id);
-  console.log(verifyPayment.length);
+
   if (verifiedPayment.length) {
     await Request.findOneAndUpdate(
       {
@@ -116,10 +115,10 @@ const verifyPayment = async (order_id: string) => {
         "transaction.date_time": verifiedPayment[0].date_time,
         paymentStatus:
           verifiedPayment[0].bank_status == "Success"
-            ? "Paid"
-            : verifiedPayment[0].bank_status == "Failed"
+            ? "paid"
+            : verifiedPayment[0].bank_status == "failed"
             ? "Pending"
-            : verifiedPayment[0].bank_status == "Cancel"
+            : verifiedPayment[0].bank_status == "cancel"
             ? "Cancelled"
             : "",
       }
