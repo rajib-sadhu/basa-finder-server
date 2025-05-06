@@ -6,6 +6,7 @@ import userRouter from "./app/modules/user/user.router";
 import listingRouter from "./app/modules/listing/listing.router";
 import requestRouter from "./app/modules/request/request.router";
 import authRouter from "./app/modules/auth/auth.router";
+import pricingRouter from "./app/modules/pricing/pricing.router";
 
 const app: Application = express();
 
@@ -36,6 +37,7 @@ app.get("/", getAController);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/listings", listingRouter);
+app.use("/api/pricings", pricingRouter);
 app.use("/api", requestRouter);
 app.use(globalErrorHandler);
 
