@@ -3,7 +3,6 @@
 import { Schema, model } from "mongoose";
 import { IListing } from "./listing.interface";
 
-
 const listingSchema = new Schema<IListing>(
   {
     title: {
@@ -17,6 +16,10 @@ const listingSchema = new Schema<IListing>(
     description: {
       type: String,
       required: true,
+    },
+    rating: {
+      average: { type: Number, default: 0 },
+      totalReviews: { type: Number, default: 0 },
     },
     rent: {
       type: Number,

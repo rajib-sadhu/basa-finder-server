@@ -6,8 +6,12 @@ export interface IListing {
   description: string;
   rent: number;
   bedrooms: number;
+  rating?: {
+    average: number;
+    totalReviews: number;
+  };
   images: string[];
-  landlordId: Types.ObjectId; 
+  landlordId: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
   amenities?: string[];
